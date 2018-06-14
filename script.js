@@ -12,7 +12,18 @@ const PADDLE_HEIGHT = PADDLE_WIDTH / 10;
 const PADDLE_TOP_Y = 10;
 const PADDLE_BOTTOM_Y = canvas.height - PADDLE_TOP_Y - PADDLE_HEIGHT;
 // winning score
-const WINNING_SCORE = 2;
+const WINNING_SCORE = 7;
+// sound effects
+const BALL_SOUND = document.createElement('audio');
+BALL_SOUND.src = "assets/sounds/ping_pong_sound.wav";
+const WIN_SOUND = document.createElement('audio');
+WIN_SOUND.src = "assets/sounds/win.wav";
+const LOSS_SOUND = document.createElement('audio');
+LOSS_SOUND.src = "assets/sounds/loss.wav";
+const PLAYER_SCORE_SOUND = document.createElement('audio');
+PLAYER_SCORE_SOUND.src = "assets/sounds/player_score.wav";
+const CPU_SCORE_SOUND = document.createElement('audio');
+CPU_SCORE_SOUND.src = "assets/sounds/cpu_score.wav";
 
 
 /** VARIABLES **/
@@ -69,6 +80,8 @@ function calculations() {
 	// side bounce
 	if((ballX < 0 && ballDistanceX < 0) || 
 		(ballX > canvas.width && ballDistanceX > 0)) {
+		BALL_SOUND.currentTime = 0;
+		BALL_SOUND.play();
 		ballDistanceX = -ballDistanceX;
 	}
 	// hit detection for player
@@ -76,6 +89,8 @@ function calculations() {
 		if (ballX >= paddleBottomX &&
 			ballX <= (paddleBottomX + PADDLE_WIDTH) &&
 			ballDistanceY > 0){
+			BALL_SOUND.currentTime = 0;
+			BALL_SOUND.play();
 			ballDistanceY = -ballDistanceY;
 			// ball control with paddle
 			ballControl(true);
@@ -86,6 +101,8 @@ function calculations() {
 		if (ballX >= paddleTopX &&
 			ballX <= (paddleTopX + PADDLE_WIDTH) &&
 			ballDistanceY < 0){
+			BALL_SOUND.currentTime = 0;
+			BALL_SOUND.play();
 			ballDistanceY = -ballDistanceY;
 			// ball control with paddle
 			ballControl(false);
@@ -95,10 +112,12 @@ function calculations() {
 	// if player missed
 	if(ballY < 0) {
 		playerScore += 1;
+		PLAYER_SCORE_SOUND.play();
 		ballReset(true);
 	}
 	// if cpu missed
 	if (ballY > canvas.height) {
+		CPU_SCORE_SOUND.play();
 		cpuScore += 1;
 		ballReset(false);
 	}
@@ -158,8 +177,13 @@ function drawNet() {
 
 // serve the ball after one side scores
 function ballReset(isPlayer) {
-	if (playerScore >= WINNING_SCORE || cpuScore >= WINNING_SCORE) {
+	if (playerScore >= WINNING_SCORE) {
 		showingWinScreen = true;
+		WIN_SOUND.play();
+	}
+	if (cpuScore >= WINNING_SCORE) {
+		showingWinScreen = true;
+		LOSS_SOUND.play();
 	}
 	ballX = canvas.width / 2;
 	ballY = isPlayer ? 
